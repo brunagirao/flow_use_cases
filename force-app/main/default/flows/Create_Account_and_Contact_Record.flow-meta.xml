@@ -2,6 +2,23 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <apiVersion>58.0</apiVersion>
     <assignments>
+        <description>Add Contacts to the Collection to be created later.</description>
+        <name>Add_Contacts_to_Collection</name>
+        <label>Add Contacts to Collection</label>
+        <locationX>50</locationX>
+        <locationY>674</locationY>
+        <assignmentItems>
+            <assignToReference>varCollectionContacts</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>varContact</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_Another_Contact_Screen</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <description>Set the Contact values from the previous screen.</description>
         <name>Set_Contact_Values</name>
         <label>Set Contact Values</label>
@@ -71,14 +88,41 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Create_Contact_Record</targetReference>
+            <targetReference>Add_Contacts_to_Collection</targetReference>
         </connector>
     </assignments>
+    <decisions>
+        <description>Routes the Flow based on if the User wants to add another Contact.</description>
+        <name>Add_Another_Contact</name>
+        <label>Add Another Contact?</label>
+        <locationX>50</locationX>
+        <locationY>890</locationY>
+        <defaultConnector>
+            <targetReference>Create_Contact_Record</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Add_Another_Contact_Checkbox</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <isGoTo>true</isGoTo>
+                <targetReference>Contact_Details_Capture_Screen</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
     <decisions>
         <description>Checks if the Account record was created successfuly.</description>
         <name>Can_Create_Contact_Record</name>
         <label>Can Create Contact Record?</label>
-        <locationX>182</locationX>
+        <locationX>248</locationX>
         <locationY>350</locationY>
         <defaultConnector>
             <targetReference>Create_Contact_Error_Screen</targetReference>
@@ -136,7 +180,7 @@
         <description>Creates the Account from the early on.</description>
         <name>Create_Account_Record</name>
         <label>Create Account Record</label>
-        <locationX>182</locationX>
+        <locationX>248</locationX>
         <locationY>242</locationY>
         <connector>
             <targetReference>Can_Create_Contact_Record</targetReference>
@@ -208,18 +252,18 @@
         <description>Create the Contact record associated with the Account using the varContact resource.</description>
         <name>Create_Contact_Record</name>
         <label>Create Contact Record</label>
-        <locationX>50</locationX>
-        <locationY>674</locationY>
+        <locationX>182</locationX>
+        <locationY>998</locationY>
         <connector>
             <targetReference>Final_Screen</targetReference>
         </connector>
-        <inputReference>varContact</inputReference>
+        <inputReference>varCollectionContacts</inputReference>
     </recordCreates>
     <screens>
         <description>This screen collects the detals for the Account to be created.</description>
         <name>Account_Details_Capture_Screen</name>
         <label>Account Details Capture Screen</label>
-        <locationX>182</locationX>
+        <locationX>248</locationX>
         <locationY>134</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -285,6 +329,28 @@
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Screen that lets user to choose to add another Contact.</description>
+        <name>Add_Another_Contact_Screen</name>
+        <label>Add Another Contact Screen</label>
+        <locationX>50</locationX>
+        <locationY>782</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Add_Another_Contact</targetReference>
+        </connector>
+        <fields>
+            <name>Add_Another_Contact_Checkbox</name>
+            <dataType>Boolean</dataType>
+            <fieldText>Do You Want to Add Another Contact?</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
@@ -436,7 +502,7 @@
         <description>Shows the message error related to creation of the Contact record.</description>
         <name>Create_Contact_Error_Screen</name>
         <label>Create Contact Error Screen</label>
-        <locationX>314</locationX>
+        <locationX>446</locationX>
         <locationY>458</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
@@ -453,27 +519,36 @@
         <description>Screen used to let user know the Flow is over.</description>
         <name>Final_Screen</name>
         <label>Final Screen</label>
-        <locationX>50</locationX>
-        <locationY>782</locationY>
+        <locationX>182</locationX>
+        <locationY>1106</locationY>
         <allowBack>false</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <fields>
             <name>Final_Screen_Message</name>
-            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 14px;&quot;&gt;Records created successfuly!&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Follow the records created: &lt;/p&gt;&lt;ul&gt;&lt;li&gt;Account record created: {!varContact.AccountId}&lt;/li&gt;&lt;li&gt;Contact record created: {!varContact.Id}&lt;/li&gt;&lt;/ul&gt;</fieldText>
+            <fieldText>&lt;p&gt;&lt;strong style=&quot;font-size: 14px;&quot;&gt;Records created successfuly!&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Follow the records created:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Account record created: {!varContact.AccountId}&lt;/li&gt;&lt;li&gt;Contact(s) record created: {!varCollectionContacts}&lt;/li&gt;&lt;/ul&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
     </screens>
     <start>
-        <locationX>56</locationX>
+        <locationX>122</locationX>
         <locationY>0</locationY>
         <connector>
             <targetReference>Account_Details_Capture_Screen</targetReference>
         </connector>
     </start>
     <status>Draft</status>
+    <variables>
+        <description>Collection of Contacts to be created.</description>
+        <name>varCollectionContacts</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Contact</objectType>
+    </variables>
     <variables>
         <description>Variable to store the Contact values to create.</description>
         <name>varContact</name>
