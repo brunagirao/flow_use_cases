@@ -1,5 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Chatter_Post_to_Manager</name>
+        <label>Chatter Post to Manager</label>
+        <locationX>176</locationX>
+        <locationY>539</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <connector>
+            <targetReference>Create_Task</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <elementReference>ChatterPostManager</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
     <apiVersion>58.0</apiVersion>
     <description>Flow that generates a task when a High-Value opportunity is lost</description>
     <environments>Default</environments>
@@ -29,7 +56,7 @@
         <name>Create_Task</name>
         <label>Create Task</label>
         <locationX>176</locationX>
-        <locationY>431</locationY>
+        <locationY>647</locationY>
         <inputAssignments>
             <field>OwnerId</field>
             <value>
@@ -77,7 +104,7 @@
         <locationY>323</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Create_Task</targetReference>
+            <targetReference>Get_Owner_Manager</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -98,6 +125,28 @@
         <object>OpportunityContactRole</object>
         <sortField>CreatedDate</sortField>
         <sortOrder>Desc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get the Owner Manager of the Decision Maker</description>
+        <name>Get_Owner_Manager</name>
+        <label>Get Owner Manager</label>
+        <locationX>176</locationX>
+        <locationY>431</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Chatter_Post_to_Manager</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Owner.Manager.ManagerId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <start>
@@ -127,4 +176,10 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <textTemplates>
+        <name>ChatterPostManager</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>@[{!Get_Owner_Manager.Id}]: This opportunity was marked Closed Lost.
+Closed by: {!$User.FirstName} {!$User.LastName} {!$User.Email}</text>
+    </textTemplates>
 </Flow>
