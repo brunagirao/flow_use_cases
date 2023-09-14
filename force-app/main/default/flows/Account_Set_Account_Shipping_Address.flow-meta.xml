@@ -41,6 +41,13 @@
                 <elementReference>Get_Account_Data.BillingStreet</elementReference>
             </value>
         </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Get_Account_Data.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>frmChangeDateNote</elementReference>
+            </value>
+        </assignmentItems>
         <connector>
             <targetReference>Update_Account</targetReference>
         </connector>
@@ -116,6 +123,12 @@
     </decisions>
     <description>Flow responsible for Set Shipping Account Address</description>
     <environments>Default</environments>
+    <formulas>
+        <description>Add an  info in the Account Description field informing when the Shipping Address was added.</description>
+        <name>frmChangeDateNote</name>
+        <dataType>String</dataType>
+        <expression>&quot;Shipping Address added on &quot; &amp; TEXT({!$Flow.CurrentDate})</expression>
+    </formulas>
     <interviewLabel>Account: Set Account Shipping Address {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Account: Set Account Shipping Address</label>
     <processMetadataValues>
@@ -202,7 +215,7 @@
             <targetReference>Get_Account_Data</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <variables>
         <name>recordId</name>
         <dataType>String</dataType>
